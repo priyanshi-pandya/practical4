@@ -1,3 +1,4 @@
+import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:flutter/material.dart';
 
 class Dashboard extends StatefulWidget {
@@ -42,28 +43,28 @@ class _DashboardState extends State<Dashboard> {
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               if (createQuote == false)
                 GestureDetector(
-                  onDoubleTap: () {
-                    // print("favourite");
-                  },
-                  onHorizontalDragEnd: ((details) {
-                    if (details.velocity.pixelsPerSecond.dx < 1) {
-                      // print("right swipe");
-                      var b = quotes.length - 1;
-
-                      if (quotesIndex < b) {
-                        setState(() {
-                          quotesIndex++;
-                        });
-                      }
-                    } else {
-                      // print('left swipe');
-                      if (quotesIndex >= 1) {
-                        setState(() {
-                          quotesIndex--;
-                        });
-                      }
-                    }
-                  }),
+                  // onDoubleTap: () {
+                  //   // print("favourite");
+                  // },
+                  // onHorizontalDragEnd: ((details) {
+                  //   if (details.velocity.pixelsPerSecond.dx < 1) {
+                  //     // print("right swipe");
+                  //     var b = quotes.length - 1;
+                  //
+                  //     if (quotesIndex < b) {
+                  //       setState(() {
+                  //         quotesIndex++;
+                  //       });
+                  //     }
+                  //   } else {
+                  //     // print('left swipe');
+                  //     if (quotesIndex >= 1) {
+                  //       setState(() {
+                  //         quotesIndex--;
+                  //       });
+                  //     }
+                  //   }
+                  // }),
 
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -105,13 +106,143 @@ class _DashboardState extends State<Dashboard> {
                             left: 50.0, right: 50.0, top: 10.0),
                         height: MediaQuery.of(context).size.height * 0.5,
                         width: MediaQuery.of(context).size.width,
-                        child: Card(
-                          semanticContainer: true,
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          // child: Image.asset("images/background.jpg"),
-                          elevation: 10,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30)),
+                        child: AppinioSwiper(
+                            direction: AppinioSwiperDirection.left,
+                           loop: true,
+                           maxAngle: 30,
+                           onSwipe: (index, left){
+                              quotesIndex < quotes.length-1 ? quotesIndex++ : quotesIndex = 0;
+                           },
+                           cardsBuilder: (BuildContext context, int index) {
+                            return Card(
+                              elevation: 10,
+                              semanticContainer: true,
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              // child: Image.asset("images/background.jpg"),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                              child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 30.0),
+                                  child: Text(
+                                    "Motivation",
+                                    style: TextStyle(
+                                      fontSize: 17.0,
+                                      color: Color(0xff212A3E),
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height * 0.3,
+                                  child: Center(
+                                    child: Text(
+                                      quotes[quotesIndex],
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontFamily: 'LibreBarnesville',
+                                        color: Color(0xff212A3E),
+                                        fontSize: 25.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 20.0),
+                                  child: Text(
+                                    "Priyanshi",
+                                    style: TextStyle(
+                                      fontSize: 15.0,
+                                      color: Color(0xff212A3E),
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                        }, cardsCount: quotes.length,
+
+                        ),
+                        // child: SwipeDeck(
+                        //   semanticContainer: true,
+                        //   clipBehavior: Clip.antiAliasWithSaveLayer,
+                        //   // child: Image.asset("images/background.jpg"),
+                        //   elevation: 10,
+                        //   shape: RoundedRectangleBorder(
+                        //       borderRadius: BorderRadius.circular(30)),
+                        //   child: Column(
+                        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //     crossAxisAlignment: CrossAxisAlignment.center,
+                        //     children: [
+                        //       const Padding(
+                        //         padding: EdgeInsets.only(top: 30.0),
+                        //         child: Text(
+                        //           "Motivation",
+                        //           style: TextStyle(
+                        //             fontSize: 17.0,
+                        //             color: Color(0xff212A3E),
+                        //             fontWeight: FontWeight.w400,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //       SizedBox(
+                        //         height: MediaQuery.of(context).size.height * 0.3,
+                        //         child: Center(
+                        //           child: Text(
+                        //             quotes[quotesIndex],
+                        //             textAlign: TextAlign.center,
+                        //             style: const TextStyle(
+                        //               fontFamily: 'LibreBarnesville',
+                        //               color: Color(0xff212A3E),
+                        //               fontSize: 25.0,
+                        //             ),
+                        //           ),
+                        //         ),
+                        //       ),
+                        //       const Padding(
+                        //         padding: EdgeInsets.only(bottom: 20.0),
+                        //         child: Text(
+                        //           "Priyanshi",
+                        //           style: TextStyle(
+                        //             fontSize: 15.0,
+                        //             color: Color(0xff212A3E),
+                        //             fontWeight: FontWeight.w300,
+                        //           ),
+                        //         ),
+                        //       )
+                        //     ],
+                        //   ),
+                        // ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                  Center(
+                    child: Container(
+                      padding:
+                      const EdgeInsets.only(left: 50.0, right: 50.0, top: 10.0),
+                      height: MediaQuery
+                          .of(context)
+                          .size
+                          .height * 0.5,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width,
+                      child: Card(
+                        // clipBehavior: Clip.antiAlias,
+                        elevation: 10,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30)),
+                        // child: Padding(
+                        // padding: const EdgeInsets.only(left: 15.0,),
+                        child: DecoratedBox(
+                          decoration: const BoxDecoration(),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -127,24 +258,23 @@ class _DashboardState extends State<Dashboard> {
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.3,
-                                child: Center(
-                                  child: Text(
-                                    quotes[quotesIndex],
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontFamily: 'LibreBarnesville',
-                                      color: Color(0xff212A3E),
-                                      fontSize: 25.0,
-                                    ),
-                                  ),
+                              TextFormField(
+                                controller: createQuoteController,
+                                textAlign: TextAlign.center,
+                                maxLength: 100,
+                                maxLines: 5,
+                                keyboardType: TextInputType.text,
+                                style: const TextStyle(
+                                    color: Color(0xff212A3E)),
+                                decoration: const InputDecoration(
+                                  hintText: "Write your quote here...",
+                                  border: InputBorder.none,
                                 ),
                               ),
                               const Padding(
                                 padding: EdgeInsets.only(bottom: 20.0),
                                 child: Text(
-                                  "Priyanshi",
+                                  "Priyanshi Pandya",
                                   style: TextStyle(
                                     fontSize: 15.0,
                                     color: Color(0xff212A3E),
@@ -156,71 +286,9 @@ class _DashboardState extends State<Dashboard> {
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                )
-              else
-                Center(
-                  child: Container(
-                    padding:
-                        const EdgeInsets.only(left: 50.0, right: 50.0, top: 10.0),
-                    height: MediaQuery.of(context).size.height * 0.5,
-                    width: MediaQuery.of(context).size.width,
-                    child: Card(
-                      // clipBehavior: Clip.antiAlias,
-                      elevation: 10,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
-                      // child: Padding(
-                      // padding: const EdgeInsets.only(left: 15.0,),
-                      child: DecoratedBox(
-                        decoration: const BoxDecoration(),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(top: 30.0),
-                              child: Text(
-                                "Motivation",
-                                style: TextStyle(
-                                  fontSize: 17.0,
-                                  color: Color(0xff212A3E),
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
-                            TextFormField(
-                              controller: createQuoteController,
-                              textAlign: TextAlign.center,
-                              maxLength: 100,
-                              maxLines: 5,
-                              keyboardType: TextInputType.text,
-                              style: const TextStyle(color: Color(0xff212A3E)),
-                              decoration: const InputDecoration(
-                                hintText: "Write your quote here...",
-                                border: InputBorder.none,
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: 20.0),
-                              child: Text(
-                                "Priyanshi Pandya",
-                                style: TextStyle(
-                                  fontSize: 15.0,
-                                  color: Color(0xff212A3E),
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
                     ),
                   ),
-                ),
-              // )
-
+                  // )
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
                 child: Text(

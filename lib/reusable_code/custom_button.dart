@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:signup_login/reusable_code/constants.dart';
 
 class CustomButton extends StatefulWidget {
    var name;

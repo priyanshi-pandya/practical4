@@ -1,21 +1,82 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:signup_login/homepage.dart';
+import 'package:signup_login/reusable_code/colors.dart';
 import 'package:signup_login/reusable_code/constants.dart';
 import 'package:signup_login/reusable_code/custom_button.dart';
+import 'package:signup_login/reusable_code/validation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class SignUpPageWidget extends StatefulWidget {
-  const SignUpPageWidget({Key? key}) : super(key: key);
-
   @override
   State<SignUpPageWidget> createState() => _SignUpPageWidgetState();
 }
 
 class _SignUpPageWidgetState extends State<SignUpPageWidget> {
-  final formKey = GlobalKey<FormState>();
-
+  late String email;
+  late String pswd;
   bool visibility = false;
   bool hiddenText = true;
+
+  final formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _pswdController = TextEditingController();
+  final TextEditingController _contactController = TextEditingController();
+  final TextEditingController _userController = TextEditingController();
+
+  _signUp(String name, String email, String contact, String pswd,
+      BuildContext context) async {
+    try {
+      UserCredential newUser = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: pswd);
+
+      await FirebaseFirestore.instance
+          .collection('registration')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .set({
+        'email': email,
+        'Username': name,
+        'contact': contact,
+        'password': pswd,
+        // 'uid': newUser.user!.uid
+      }).then((val) async{
+
+        // SharedPreferences.setMockInitialValues({});
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('uid', newUser.user!.uid);
+        prefs.setString('email', email);
+        print('***shared prefs code ***');
+         Get.off(const Dashboard());
+
+      }).catchError((e){
+        print("Koi to Error hai babua : " + e.toString());
+      }).whenComplete(() async{
+
+
+        print("Successfully added in database");
+        if (newUser != null) {
+
+          // Get.off( const Dashboard());
+
+
+          // Not needed ;)
+          // Navigator.pushAndRemoveUntil(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => const Dashboard(),
+          //   ),
+          //   (route) => route.isFirst,
+          // );
+        }
+      });
+    } catch (e) {
+      print("Registration Failed $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +87,9 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
       },
-
-      child: SafeArea(
-        child: Scaffold(
-          body: Container(
+      child: Scaffold(
+        body: SafeArea(
+          child: Container(
             height: height,
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -38,7 +98,6 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                 opacity: 0.6,
               ),
             ),
-
             child: Padding(
               padding: const EdgeInsets.all(25.0),
               child: SingleChildScrollView(
@@ -56,15 +115,13 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                           },
                           icon: const Icon(
                             Icons.arrow_back,
-                            color: Color(0xff212A3E),
+                            color: textColor,
                           ),
                         ),
                       ),
-
                       SizedBox(
                         height: height * 0.05,
                       ),
-
                       Stack(
                         children: const [
                           CircleAvatar(
@@ -76,7 +133,7 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                             right: 0,
                             child: CircleAvatar(
                               radius: 15,
-                              backgroundColor: Color(0xff212A3E),
+                              backgroundColor: textColor,
                               child: Icon(
                                 Icons.edit,
                                 size: 20,
@@ -85,44 +142,44 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                           ),
                         ],
                       ),
-
                       SizedBox(
                         height: height * 0.05,
                       ),
-
                       const Text(
                         "Create Account",
                         style: TextStyle(
                             fontSize: 25,
-                            color: Color(0xff212A3E),
+                            color: textColor,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'LibreBarnesville'),
                       ),
-
                       SizedBox(
                         height: height * 0.05,
                       ),
-
                       Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xff212A3E),),
+                          border: Border.all(
+                            color: textColor,
+                          ),
                         ),
                         child: TextFormField(
+                          controller: _userController,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
                             // contentPadding: EdgeInsets.only(top:10),
                             prefixIcon: Icon(
                               Icons.person,
-                              color: Color(0xff212A3E),
+                              color: textColor,
                             ),
                             labelText: 'Username',
-                            labelStyle: TextStyle(color: Color(0xff212A3E)),
+                            labelStyle: TextStyle(color: textColor),
                           ),
                           textInputAction: TextInputAction.next,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Please Enter Username";
-                            } else if (!RegExp(r'^[a-zA-z]+$').hasMatch(value)) {
+                            } else if (!RegExp(userValidation)
+                                .hasMatch(value)) {
                               return "Not Valid Name";
                             } else {
                               return null;
@@ -130,28 +187,29 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                           },
                         ),
                       ),
-
                       SizedBox(
                         height: height * 0.01,
                       ),
-
                       Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xff212A3E),),
+                          border: Border.all(
+                            color: textColor,
+                          ),
                         ),
                         child: TextFormField(
+                          controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
-                            prefixIcon: Icon(Icons.email, color: Color(0xff212A3E)),
+                            prefixIcon: Icon(Icons.email, color: textColor),
                             labelText: 'Email',
-                            labelStyle: TextStyle(color: Color(0xff212A3E)),
+                            labelStyle: TextStyle(color: textColor),
                           ),
                           validator: (value) {
                             if (value!.isEmpty) {
                               return "Please Enter Email";
                             } else {
-                              if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.([a-zA-Z]{2,})+").hasMatch(value)) {
+                              if (!RegExp(emailValidation).hasMatch(value)) {
                                 return "Invalid email id";
                               } else {
                                 return null;
@@ -160,30 +218,32 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                           },
                         ),
                       ),
-
                       SizedBox(
                         height: height * 0.01,
                       ),
-
                       Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xff212A3E),),
+                          border: Border.all(
+                            color: textColor,
+                          ),
                         ),
                         child: TextFormField(
+                          controller: _contactController,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
-                            prefixIcon: Icon(Icons.phone, color: Color(0xff212A3E)),
+                            prefixIcon: Icon(Icons.phone, color: textColor),
                             labelText: 'Phone',
-                            labelStyle: TextStyle(color: Color(0xff212A3E)),
+                            labelStyle: TextStyle(color: textColor),
                           ),
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                            FilteringTextInputFormatter.allow(
+                                RegExp(phoneValidation))
                           ],
                           validator: (value) {
                             if (value!.isEmpty) {
                               return "Please enter phone number";
-                            } else if(value.length != 10){
+                            } else if (value.length != 10) {
                               // print(value.length);
                               return "Contact number should be of 10 characters";
                             } else {
@@ -192,21 +252,22 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                           },
                         ),
                       ),
-
                       SizedBox(
                         height: height * 0.01,
                       ),
-
                       Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xff212A3E),),
+                          border: Border.all(
+                            color: textColor,
+                          ),
                         ),
                         child: TextFormField(
                           obscureText: hiddenText,
+                          controller: _pswdController,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             prefixIcon:
-                            const Icon(Icons.password, color: Color(0xff212A3E)),
+                                const Icon(Icons.password, color: textColor),
                             suffixIcon: IconButton(
                               onPressed: () {
                                 setState(() {
@@ -220,16 +281,16 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                               },
                               icon: visibility
                                   ? const Icon(
-                                Icons.visibility,
-                                color: Color(0xff212A3E),
-                              )
+                                      Icons.visibility,
+                                      color: textColor,
+                                    )
                                   : const Icon(
-                                Icons.visibility_off,
-                                color: Color(0xff212A3E),
-                              ),
+                                      Icons.visibility_off,
+                                      color: textColor,
+                                    ),
                             ),
                             labelText: 'Password',
-                            labelStyle: const TextStyle(color: Color(0xff212A3E)),
+                            labelStyle: const TextStyle(color: textColor),
                           ),
                           validator: (value) {
                             if (value!.isEmpty) {
@@ -247,15 +308,18 @@ class _SignUpPageWidgetState extends State<SignUpPageWidget> {
                           ],
                         ),
                       ),
-
                       SizedBox(
                         height: height * 0.05,
                       ),
-
                       CustomButton(
                         onTap: () {
                           if (formKey.currentState!.validate()) {
-                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const Dashboard(),), (route) => route.isFirst,);
+                            _signUp(
+                                _userController.text,
+                                _emailController.text,
+                                _contactController.text,
+                                _pswdController.text,
+                                context);
                           }
                         },
                         name: 'Create Account',
